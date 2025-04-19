@@ -83,3 +83,4 @@ docker-compose up auth-service
 Maintainer: Janitha Gamage
 Email: janithasuranjana2001@gmail.com.com
 GitHub: github.com/JordanCJ7
+Phone: +94743288572
