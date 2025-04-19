@@ -18,6 +18,6 @@ router.patch('/:id/status', authMiddleware, updateOrderStatus);
 
 module.exports = router;
 // This code defines the routes for the order service in a Node.js application using Express.
-// It includes routes for adding items to the cart, retrieving the cart, placing an order, and getting the user's orders. 
-// The routes are protected by authentication and role-based middleware to ensure that only customers can access them. 
-// Finally, the router is exported for use in other parts of the application.
+// It includes routes for adding items to the cart, placing orders, viewing orders, modifying orders, and updating order statuses. 
+// The routes are protected by authentication and role-based middleware to ensure that only authorized users can access them. 
+// The routes are then exported for use in the main application.
