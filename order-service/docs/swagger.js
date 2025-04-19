@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Restaurant Service API",
+      title: "Order Service API",
       version: "1.0.0",
-      description: "API documentation for the Restaurant microservice",
+      description: "API documentation for the Order microservice",
     },
     servers: [
       {
