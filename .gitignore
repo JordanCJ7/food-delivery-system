@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+*.env
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# Dependency directories
+**/node_modules
+
+# System files
+.DS_Store
+Thumbs.db
