@@ -152,6 +152,79 @@ router.patch(
 
 /**
  * @swagger
+ * /api/restaurants/{id}:
+ *   put:
+ *     summary: Update restaurant details
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Restaurant ID
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Restaurant updated successfully
+ *       404:
+ *         description: Restaurant not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put(
+  '/:id',
+  authMiddleware,
+  roleMiddleware('restaurant_admin'),
+  restaurantController.updateRestaurant
+);
+
+/**
+ * @swagger
+ * /api/restaurants/{id}:
+ *   delete:
+ *     summary: Delete a restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Restaurant ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Restaurant deleted successfully
+ *       404:
+ *         description: Restaurant not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete(
+  '/:id',
+  authMiddleware,
+  roleMiddleware('admin'),
+  restaurantController.deleteRestaurant
+);
+
+/**
+ * @swagger
  * /api/restaurants/{id}/menu:
  *   post:
  *     summary: Add a menu item to a restaurant
