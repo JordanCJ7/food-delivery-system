@@ -12,7 +12,16 @@ const orderSchema = new mongoose.Schema({
   totalPrice: Number,
   status: {
     type: String,
-    enum: ['Pending', 'Confirmed', 'Preparing', 'Out for Delivery', 'Completed', 'Cancelled'],
+    enum: [
+      'Pending',        // Order placed
+      'Confirmed',      // Confirmed by restaurant
+      'Preparing',      // Restaurant is preparing food
+      'Completed',      // Food is ready
+      'Accepted',       // Delivery agent accepted the job
+      'dispatched', // Restaurant hands over to delivery agent
+      'Delivered',      // Order delivered to customer
+      'Cancelled'       // Cancelled by restaurant or delivery agent
+    ],
     default: 'Pending'
   }
 }, { timestamps: true });
