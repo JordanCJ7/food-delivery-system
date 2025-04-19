@@ -12,9 +12,9 @@ router.post('/place', authMiddleware, roleMiddleware('customer'), orderControlle
 router.get('/my-orders', authMiddleware, roleMiddleware('customer'), orderController.getMyOrders);
 
 // Modify order (customer only, pending)
-router.patch('/:id', authMiddleware, roleMiddleware('customer'), modifyOrder);
+router.patch('/:id', authMiddleware, roleMiddleware('customer'), orderController.modifyOrder);
 // Update status (admin, restaurant_admin, delivery_agent)
-router.patch('/:id/status', authMiddleware, updateOrderStatus);
+router.patch('/:id/status', authMiddleware, orderController.updateOrderStatus);
 
 module.exports = router;
 // This code defines the routes for the order service in a Node.js application using Express.

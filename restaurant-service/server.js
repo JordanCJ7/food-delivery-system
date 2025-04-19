@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
-const connectDB = require('./config/db'); // New import
+const connectDB = require('./config/db'); 
 const restaurantRoutes = require('./routes/restaurantRoutes');
 
 const swaggerUi = require('swagger-ui-express');
