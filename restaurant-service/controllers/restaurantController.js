@@ -64,3 +64,30 @@ exports.verifyRestaurant = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Update restaurant details
+exports.updateRestaurant = async (req, res) => {
+  try {
+    const { name, location, phone } = req.body;
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      { name, location, phone },
+      { new: true }
+    );
+    if (!updatedRestaurant) return res.status(404).json({ message: 'Not found' });
+    res.json(updatedRestaurant);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete a restaurant
+exports.deleteRestaurant = async (req, res) => {
+  try {
+    const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
+    if (!deletedRestaurant) return res.status(404).json({ message: 'Not found' });
+    res.json({ message: 'Restaurant deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
