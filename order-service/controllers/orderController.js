@@ -1,6 +1,11 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 
+/**
+ * Place Order - Customer Only
+ * Creates a new order using the customer's cart, calculates total price,
+ * saves the order, and clears the cart.
+ */
 exports.placeOrder = async (req, res) => {
   try {
     const customerId = req.user.id;
@@ -35,6 +40,10 @@ exports.placeOrder = async (req, res) => {
   }
 };
 
+/**
+ * Get My Orders - Customer Only
+ * Retrieves all orders placed by the currently authenticated customer.
+ */
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ customerId: req.user.id }).populate('items.menuItemId');
@@ -46,76 +55,82 @@ exports.getMyOrders = async (req, res) => {
 
 // Modify Order - Customer Only
 exports.modifyOrder = async (req, res) => {
-    try {
-      const orderId = req.params.id;
-      const userId = req.user.id;
-  
-      const order = await Order.findById(orderId);
-      if (!order) return res.status(404).json({ error: 'Order not found' });
-  
-      if (order.customerId.toString() !== userId) {
-        return res.status(403).json({ error: 'Unauthorized' });
-      }
-  
-      if (order.status !== 'Pending') {
-        return res.status(400).json({ error: 'Order can only be modified while pending' });
-      }
-  
-      const { items } = req.body;
-      if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ error: 'Items array required' });
-      }
-  
-      order.items = items;
-      await order.save();
-  
-      res.json(order);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    if (order.customerId.toString() !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
     }
-  };
-  
-  // Update Order Status - Role-based
-  exports.updateOrderStatus = async (req, res) => {
-    try {
-      const order = await Order.findById(req.params.id);
-      if (!order) return res.status(404).json({ error: 'Order not found' });
-  
-      const currentStatus = order.status;
-      const newStatus = req.body.status;
-      const userRole = req.user.role;
-  
-      const validTransitions = {
-        restaurant_admin: {
-          Pending: 'Confirmed'
-        },
-        delivery_agent: {
-          Confirmed: 'Out for Delivery',
-          'Out for Delivery': 'Delivered'
-        },
-        admin: {
-          Pending: ['Confirmed', 'Cancelled'],
-          Confirmed: ['Out for Delivery', 'Cancelled'],
-          'Out for Delivery': ['Delivered'],
-        }
-      };
-  
-      const isValid = () => {
-        if (userRole === 'admin') {
-          return validTransitions.admin[currentStatus]?.includes(newStatus);
-        }
-        return validTransitions[userRole]?.[currentStatus] === newStatus;
-      };
-  
-      if (!isValid()) {
-        return res.status(403).json({ error: 'Invalid status transition or role not authorized' });
-      }
-  
-      order.status = newStatus;
-      await order.save();
-      res.json(order);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+
+    if (order.status !== 'pending') {
+      return res.status(400).json({ error: 'Order can only be modified while pending' });
     }
-  };
-  
+
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Items array required' });
+    }
+
+    order.items = items;
+    await order.save();
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Update Order Status - Role-based
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    const currentStatus = order.status;
+    const newStatus = req.body.status?.toLowerCase();  // normalize input
+    const userRole = req.user.role;
+
+    const validTransitions = {
+      restaurant_admin: {
+        pending: ['confirmed', 'cancelled'],
+        confirmed: ['preparing'],
+        preparing: ['completed'],
+        accepted: ['dispatched']
+      },
+      delivery_person: {
+        completed: ['accepted', 'cancelled'],
+        dispatched: ['delivered']
+      },
+      admin: {
+        pending: ['confirmed', 'cancelled'],
+        confirmed: ['preparing', 'cancelled'],
+        preparing: ['completed'],
+        completed: ['accepted', 'cancelled'],
+        accepted: ['dispatched'],
+        dispatched: ['delivered']
+      }
+    };
+
+    const isValid = () => {
+      const transitions = validTransitions[userRole]?.[currentStatus];
+      if (!transitions) return false;
+      return Array.isArray(transitions)
+        ? transitions.includes(newStatus)
+        : transitions === newStatus;
+    };
+
+    if (!isValid()) {
+      return res.status(403).json({ error: 'Invalid status transition or role not authorized' });
+    }
+
+    order.status = newStatus;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
