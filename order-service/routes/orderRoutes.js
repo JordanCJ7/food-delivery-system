@@ -55,6 +55,36 @@ router.get('/cart', authMiddleware, roleMiddleware('customer'), cartController.g
 
 /**
  * @swagger
+ * /cart/remove:
+ *   delete:
+ *     summary: Remove an item from the cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - menuItemId
+ *             properties:
+ *               menuItemId:
+ *                 type: string
+ *                 example: "607f1f77bcf86cd799439011"
+ *     responses:
+ *       200:
+ *         description: Item removed from cart successfully
+ *       404:
+ *         description: Cart or item not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/cart/remove', authMiddleware, roleMiddleware('customer'), cartController.removeFromCart);
+
+/**
+ * @swagger
  * /place:
  *   post:
  *     summary: Place an order from the current cart
@@ -175,6 +205,6 @@ router.patch('/:id/status', authMiddleware, orderController.updateOrderStatus);
 module.exports = router;
 
 // This code defines the routes for the order service in a Node.js application using Express.
-// It includes routes for adding items to the cart, placing orders, viewing orders, modifying orders, and updating order statuses. 
+// It includes routes for adding items to the cart, removing items from the cart, placing orders, viewing orders, modifying orders, and updating order statuses. 
 // The routes are protected by authentication and role-based middleware to ensure that only authorized users can access them. 
 // The routes are then exported for use in the main application.
