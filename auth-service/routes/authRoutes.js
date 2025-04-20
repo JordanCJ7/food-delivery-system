@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
+const {
+  register,
+  login,
+  getUserInfo,
+  updateProfile,
+  deleteProfile,
+} = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -80,5 +87,73 @@ router.post('/register', register);
  *         description: Server error
  */
 router.post('/login', login);
+
+/**
+ * @swagger
+ * /api/auth/user:
+ *   get:
+ *     summary: Get user information
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User information retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/user', authMiddleware(), getUserInfo);
+  
+
+/**
+ * @swagger
+ * /api/auth/user:
+ *   put:
+ *     summary: Update user profile
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: john@example.com
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/user', authMiddleware(), updateProfile);
+
+/**
+ * @swagger
+ * /api/auth/user:
+ *   delete:
+ *     summary: Delete user profile
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile deleted successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/user', authMiddleware(), deleteProfile);
 
 module.exports = router;

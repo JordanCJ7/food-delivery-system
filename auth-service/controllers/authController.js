@@ -100,3 +100,50 @@ exports.login = async (req, res) => {
     res.status(500).json({ msg: 'Internal server error' });
   }
 };
+
+// Get User Info Controller
+exports.getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user info:', err);
+    res.status(500).json({ msg: 'Internal server error' });
+  }
+};
+
+// Update Profile Controller
+exports.updateProfile = async (req, res) => {
+  const { name, email } = req.body;
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, email },
+      { new: true, runValidators: true }
+    ).select('-password');
+    if (!updatedUser) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.json({ msg: 'Profile updated successfully', user: updatedUser });
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).json({ msg: 'Internal server error' });
+  }
+};
+
+// Delete Profile Controller
+exports.deleteProfile = async (req, res) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.user.id);
+    if (!deletedUser) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.json({ msg: 'Profile deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting profile:', err);
+    res.status(500).json({ msg: 'Internal server error' });
+  }
+};
