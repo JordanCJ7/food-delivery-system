@@ -1,25 +1,38 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 const authMiddleware = (roles = []) => {
-  return (req, res, next) => {
-    const authHeader = req.headers.authorization;
+  if (typeof roles === 'string') {
+    roles = [roles];
+  }
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
+  return (req, res, next) => {
+    const authHeader = req.header('Authorization');
+    console.log('[Auth Middleware] Step 1 - Received Header:', authHeader);
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Auth Middleware] No valid Bearer token found');
+      return res.status(401).json({ msg: 'No token, authorization denied' });
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(' ')[1];
+    console.log('[Auth Middleware] Step 2 - Extracted Token:', token);
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('[Auth Middleware] Step 3 - Decoded Token:', decoded);
+
       if (roles.length && !roles.includes(decoded.role)) {
-        return res.status(403).json({ message: "Forbidden - insufficient role" });
+        console.log('[Auth Middleware] Step 4 - Role not authorized:', decoded.role);
+        return res.status(403).json({ msg: 'Forbidden - insufficient role' });
       }
 
       req.user = decoded;
-      next();
+      console.log('[Auth Middleware] Step 5 - Middleware passed to next()');
+      next(); // Continue to the actual route handler
+
     } catch (err) {
-      res.status(401).json({ message: "Invalid or expired token" });
+      console.error('[Auth Middleware] JWT verification error:', err.message);
+      res.status(401).json({ msg: 'Invalid or expired token' });
     }
   };
 };
