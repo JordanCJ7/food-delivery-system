@@ -55,6 +55,54 @@ router.get('/cart', authMiddleware, roleMiddleware('customer'), cartController.g
 
 /**
  * @swagger
+ * /cart/decrease-quantity:
+ *   patch:
+ *     summary: Decrease the quantity of an item in the cart (or remove it if quantity is 1)
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - menuItemId
+ *             properties:
+ *               menuItemId:
+ *                 type: string
+ *                 example: "607f1f77bcf86cd799439011"
+ *     responses:
+ *       200:
+ *         description: Quantity updated successfully or item removed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Quantity updated successfully
+ *                 item:
+ *                   type: object
+ *                   nullable: true
+ *                   properties:
+ *                     menuItemId:
+ *                       type: string
+ *                       example: "607f1f77bcf86cd799439011"
+ *                     quantity:
+ *                       type: integer
+ *                       example: 2
+ *       404:
+ *         description: Cart or item not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/cart/decrease-quantity', authMiddleware, roleMiddleware('customer'), cartController.decreaseCartItemQuantity);
+
+/**
+ * @swagger
  * /cart/remove:
  *   delete:
  *     summary: Remove an item from the cart
