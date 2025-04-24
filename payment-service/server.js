@@ -26,5 +26,5 @@ app.use('/api/payments', paymentRoutes);
 const PORT = process.env.PORT || 5004; // Changed port to 5004 for order service
 app.listen(PORT, () => {
   console.log(`🚀 paymnt-service running on port ${PORT}`);
-  console.log(`Swagger docs available at http://localhost:${PORT}/api/payments/docs/`); // Updated to reflect the /api/orders/docs path
+  console.log(`Swagger docs available at http://localhost:${PORT}/api/payments/docs/`);
 });
