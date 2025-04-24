@@ -1,15 +1,13 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
 const connectDB = require('./config/db'); // Import the database connection function
+const mongoose = require('mongoose');
 
-dotenv.config();
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swagger');
-const paymentRoutes = require('./routes/paymentRoutes');
+const swaggerSpec = require('./docs/swagger');
 
 const app = express();
 
