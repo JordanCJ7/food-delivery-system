@@ -1,4 +1,5 @@
 const { PayPalClient, PayPalOrders } = require('../utils/paypalClient');
+const Payment = require('../models/Payment'); // Import Payment model
 
 exports.createPayment = async (req, res) => {
   try {
@@ -23,14 +24,23 @@ exports.createPayment = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId, customerId, amount } = req.body; // Include customerId and amount
 
     const request = new PayPalOrders.CaptureOrderRequest(orderId);
     request.requestBody({});
 
     const response = await PayPalClient().execute(request);
     if (response.result.status === 'COMPLETED') {
-      // Optionally update order status in DB
+      // Update payment status in the database
+      await Payment.create({
+        orderId, // Internal order reference
+        customerId,
+        amount,
+        status: 'completed',
+        method: 'paypal', // Since this is PayPal
+        transactionId: response.result.id
+      });
+
       return res.status(200).json({ success: true, data: response.result });
     }
 
