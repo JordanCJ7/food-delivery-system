@@ -6,11 +6,11 @@ const options = {
     info: {
       title: "Order Service API",
       version: "1.0.0",
-      description: "API documentation for the Order microservice",
+      description: "API documentation for the Payment microservice",
     },
     servers: [
       {
-        url: "http://localhost:5002", // base URL
+        url: "http://localhost:5004", // base URL
       },
     ],
     components: {
