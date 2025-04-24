@@ -24,9 +24,9 @@ app.use(express.json());
 app.use('/api/orders', orderRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5002; 
 app.listen(PORT, () => {
   console.log(`🚀 restaurant-service running on port ${PORT}`);
-  console.log(`Swagger docs available at http://localhost:${PORT}/api/orders/docs/`); // Updated to reflect the /api/orders/docs path
+  console.log(`Swagger docs available at http://localhost:${PORT}/api/orders/docs/`); 
 });
 
