@@ -14,11 +14,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// Swagger UI route
+app.use('/api/payments/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(cors());
 app.use(express.json());
 
 app.use('/api/payments', paymentRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Payment Service running on port ${PORT}`));
