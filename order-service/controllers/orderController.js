@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
+const Payment = require('../models/Payment'); // Import Payment model
 
 /**
  * Place Order - Customer Only
@@ -15,15 +16,21 @@ exports.placeOrder = async (req, res) => {
       return res.status(400).json({ error: 'Cart is empty' });
     }
 
+    const totalPrice = cart.items.reduce(
+      (sum, item) => sum + item.menuItemId.price * item.quantity, 0
+    );
+
+    // Verify payment
+    const payment = await Payment.findOne({ customerId, status: 'verified', amount: totalPrice });
+    if (!payment) {
+      return res.status(400).json({ error: 'Payment not verified or insufficient amount' });
+    }
+
     const restaurantId = cart.items[0].menuItemId.restaurantId;
     const items = cart.items.map(item => ({
       menuItemId: item.menuItemId._id,
       quantity: item.quantity
     }));
-
-    const totalPrice = cart.items.reduce(
-      (sum, item) => sum + item.menuItemId.price * item.quantity, 0
-    );
 
     const order = await Order.create({
       customerId,
