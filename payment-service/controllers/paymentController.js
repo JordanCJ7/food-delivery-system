@@ -31,19 +31,16 @@ exports.verifyPayment = async (req, res) => {
 
     const response = await PayPalClient().execute(request);
     if (response.result.status === 'COMPLETED') {
-      // Update payment status in the database
       await Payment.create({
-        orderId, // Internal order reference
+        orderId,
         customerId,
         amount,
-        status: 'completed',
-        method: 'paypal', // Since this is PayPal
+        status: 'verified', // Change from 'completed' to 'verified'
+        method: 'paypal',
         transactionId: response.result.id
       });
-
       return res.status(200).json({ success: true, data: response.result });
     }
-
     res.status(400).json({ success: false, message: 'Payment not completed' });
   } catch (err) {
     res.status(500).json({ error: err.message });
