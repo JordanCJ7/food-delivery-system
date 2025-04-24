@@ -49,3 +49,18 @@ exports.verifyPayment = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.checkPayment = async (req, res) => {
+  try {
+    const { customerId, amount } = req.body; // Extract customerId and amount from request body
+    const payment = await Payment.findOne({ customerId, amount, status: 'verified' });
+
+    if (payment) {
+      return res.status(200).json({ success: true, data: payment });
+    }
+
+    res.status(404).json({ success: false, message: 'Payment not found or not verified' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
