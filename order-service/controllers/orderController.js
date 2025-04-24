@@ -1,6 +1,6 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
-const Payment = require('../models/Payment'); // Import Payment model
+const axios = require('axios'); // Import axios for API calls
 
 /**
  * Place Order - Customer Only
@@ -20,9 +20,15 @@ exports.placeOrder = async (req, res) => {
       (sum, item) => sum + item.menuItemId.price * item.quantity, 0
     );
 
-    // Verify payment
-    const payment = await Payment.findOne({ customerId, status: 'verified', amount: totalPrice });
-    if (!payment) {
+    // Verify payment via API
+    const paymentResponse = await axios.post('http://localhost:3004/payments/check-payment', {
+      customerId,
+      amount: totalPrice
+    }, {
+      headers: { Authorization: req.headers.authorization } // Pass authorization header
+    });
+
+    if (!paymentResponse.data.success) {
       return res.status(400).json({ error: 'Payment not verified or insufficient amount' });
     }
 
@@ -43,6 +49,9 @@ exports.placeOrder = async (req, res) => {
 
     res.status(201).json(order);
   } catch (err) {
+    if (err.response && err.response.data) {
+      return res.status(err.response.status).json(err.response.data); // Handle API errors
+    }
     res.status(500).json({ error: err.message });
   }
 };
