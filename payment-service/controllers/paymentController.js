@@ -1,4 +1,5 @@
 const { PayPalClient, PayPalOrders } = require('../utils/paypalClient');
+const Payment = require('../models/Payment'); // Import Payment model
 
 exports.createPayment = async (req, res) => {
   try {
@@ -23,18 +24,39 @@ exports.createPayment = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId, customerId, amount } = req.body; // Include customerId and amount
 
     const request = new PayPalOrders.CaptureOrderRequest(orderId);
     request.requestBody({});
 
     const response = await PayPalClient().execute(request);
     if (response.result.status === 'COMPLETED') {
-      // Optionally update order status in DB
+      await Payment.create({
+        orderId,
+        customerId,
+        amount,
+        status: 'verified', // Change from 'completed' to 'verified'
+        method: 'paypal',
+        transactionId: response.result.id
+      });
       return res.status(200).json({ success: true, data: response.result });
     }
-
     res.status(400).json({ success: false, message: 'Payment not completed' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.checkPayment = async (req, res) => {
+  try {
+    const { customerId, amount } = req.body; // Extract customerId and amount from request body
+    const payment = await Payment.findOne({ customerId, amount, status: 'verified' });
+
+    if (payment) {
+      return res.status(200).json({ success: true, data: payment });
+    }
+
+    res.status(404).json({ success: false, message: 'Payment not found or not verified' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
